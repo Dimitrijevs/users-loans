@@ -1,0 +1,42 @@
+global:
+  smtp_from: 'alertmanager@example.com'
+  smtp_smarthost: 'mailhog:1025'
+  smtp_require_tls: false
+
+route:
+  # The top-level route catches all alerts by default.
+  receiver: default-receiver
+  group_by: [ 'critical', 'warning' ]
+
+  routes:
+  # Route for critical alerts from any service.
+  - match:
+      severity: 'critical'
+    receiver: critical-receiver
+
+  # Route for all alerts from the loans service.
+  - match:
+      severity: 'loans-warning'
+    receiver: loans-team-receiver
+
+  # Route for all alerts from the users service.
+  - match:
+      severity: 'users-warning'
+    receiver: users-team-receiver
+
+receivers:
+- name: default-receiver
+  email_configs:
+  - to: 'default-alerts@example.com'
+
+- name: critical-receiver
+  email_configs:
+  - to: 'on-call-team@example.com'
+
+- name: loans-team-receiver
+  email_configs:
+  - to: 'loans-team@example.com'
+
+- name: users-team-receiver
+  email_configs:
+  - to: 'users-team@example.com'

@@ -1,0 +1,95 @@
+services:
+  postgres_db_users:
+    image: postgres:17-alpine
+    container_name: loans-users-postgres
+    environment:
+      POSTGRES_DB: loans-users
+      POSTGRES_USER: loansusers
+      POSTGRES_PASSWORD: loansusers_password
+    ports:
+      - "5440:5432"
+    volumes:
+      - loans-users-postgres-data:/var/lib/postgresql/data
+
+  postgres_db_loans:
+    image: postgres:17-alpine
+    container_name: loans-loans-postgres
+    environment:
+      POSTGRES_DB: loans-loans
+      POSTGRES_USER: loansusers
+      POSTGRES_PASSWORD: loansusers_password
+    ports:
+      - "5441:5432"
+    volumes:
+      - loans-loan-postgres-data:/var/lib/postgresql/data
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    volumes:
+      - "./monitoring/prometheus.yaml:/etc/prometheus/prometheus.yml"
+      - "./monitoring/rules:/etc/prometheus/rules"
+      - "prometheus-data:/prometheus"
+    networks:
+      - localprom
+    ports:
+      - 9090:9090
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    networks:
+      - localprom
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+  node-exporter:
+    image: prom/node-exporter
+    networks:
+      - localprom
+    ports:
+      - 9100:9100
+
+  alert-manager:
+    image: prom/alertmanager
+    volumes:
+      - "./monitoring/alertmanager.yaml:/etc/alertmanager/alertmanager.yml"
+      - "alertmanager-data:/data"
+    networks:
+      - localprom
+    ports:
+      - 9093:9093
+
+  # blackbox-exporter:
+  #   image: prom/blackbox-exporter
+  #   container_name: blackbox-exporter
+  #   volumes:
+  #     - "./monitoring/blackbox.yaml:/config/blackbox.yml"
+  #   ports:
+  #     - "9115:9115"
+
+  mailhog:
+    image: jcalonso/mailhog:latest
+    container_name: mailhog
+    networks:
+      - localprom
+    ports:
+      - "1025:1025" # SMTP port
+      - "8025:8025" # Web UI port
+
+volumes:
+  loans-users-postgres-data:
+  loans-loan-postgres-data:
+  prometheus-data:
+  alertmanager-data:
+  grafana-data:
+
+networks:
+  localprom:
+    driver: bridge

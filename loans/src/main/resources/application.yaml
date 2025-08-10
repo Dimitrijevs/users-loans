@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5441/loans-loans
+    username: loansusers
+    password: loansusers_password
+    driver-class-name: org.postgresql.Driver
+
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+      format_sql: true
+
+  application:
+    name: loans
+
+server:
+  port: 8082
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
+
+management:
+  metrics:
+    tags:
+      application: loans
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true  # Register this CB with actuator
+        slidingWindowSize: 10  # Number of calls to evaluate failure rate
+        minimumNumberOfCalls: 5  # Min calls before CB can calculate failure rate
+        permittedNumberOfCallsInHalfOpenState: 3  # Test calls when half-open
+        automaticTransitionFromOpenToHalfOpenEnabled: true  # Auto transition to half-open
+        waitDurationInOpenState: 8000  # Wait time (ms) before trying half-open
+        eventConsumerBufferSize: 100  # Buffer size for actuator events

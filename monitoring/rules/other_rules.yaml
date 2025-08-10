@@ -1,0 +1,16 @@
+groups:
+- name: other_rules
+  rules:
+  # recording rule
+  - record: NodeExporterDown
+    expr: up{job="node-exporter"} == 0
+
+  # alerting rule
+  - alert: NodeExporterDown
+    expr: up{job="node-exporter"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Node Exporter is Down"
+      description: "The Node Exporter service is not reachable on instance {{ $labels.instance }} for more than 1 minute."

@@ -1,0 +1,55 @@
+server:
+  port: 8090  # Gateway service port
+
+spring:
+  application:
+    name: gateway  # Service name for Eureka registration
+  cloud:
+    gateway:
+      server:
+        webflux:
+          httpclient:
+            # if request is taking to long, we can add a limiters
+            connect-timeout: 2000  # connection time, if connection time it bigger then it will return an error
+            response-timeout: 4000  # response time, if response time it bigger then it will return an error
+            
+          discovery:
+            locator:
+              enabled: false  # Disable auto-generated routes from Eureka services
+              lower-case-service-id: true  # Convert service names to lowercase in routes
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/  # Eureka server URL for service discovery
+  instance:
+    hostname: localhost  # Eureka instance hostname
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Expose all actuator endpoints
+  endpoint:
+    health:
+      show-details: "always"  # Show detailed health info
+  metrics:
+    tags:
+      application: gateway  # Add application tag to metrics
+  health:
+    circuitbreakers:
+      enabled: true  # Enable circuit breaker health indicators
+    ratelimiters:
+      enabled: true  # Enable rate limiter health indicators
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true  # Register this CB with actuator
+        slidingWindowSize: 10  # Number of calls to evaluate failure rate
+        minimumNumberOfCalls: 5  # Min calls before CB can calculate failure rate
+        permittedNumberOfCallsInHalfOpenState: 3  # Test calls when half-open
+        automaticTransitionFromOpenToHalfOpenEnabled: true  # Auto transition to half-open
+        waitDurationInOpenState: 8000  # Wait time (ms) before trying half-open
+        eventConsumerBufferSize: 100  # Buffer size for actuator events

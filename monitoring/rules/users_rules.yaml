@@ -1,0 +1,33 @@
+# rules - 
+groups:
+- name: users_service_rules
+
+  rules:
+  - record: users_http_requests_total_rate # metric name
+    # average request rate per sec
+    expr: sum(rate(http_server_requests_seconds_count{application="users"}[5m])) by (application, status, method)
+
+  - record: users_http_requests_error_rate # metric name
+    # average unsuccessful request rate per sec
+    expr: sum(rate(http_server_requests_seconds_count{job="users-service", status=~"4..|5.."}[5m])) / sum(rate(http_server_requests_seconds_count{job="users-service"}[5m]))
+
+  - alert: HighUserErrorRate
+    expr: users_http_requests_error_rate > 0.05 # Fires if the error rate exceeds 5%
+    for: 10s
+    labels:
+      severity: warning
+    annotations:
+      summary: "High error rate detected on Users Service"
+      description: "The users-service is experiencing a request error rate greater than 5% for more than 10 seconds. Current rate: {{ $value }}"
+
+  - record: instance_memory_usage_percent
+    # Percentage of memory being used on each server instance.
+    expr: (node_memory_MemTotal_bytes - node_memory_MemFree_bytes) / node_memory_MemTotal_bytes * 100
+
+  - record: instance_memory_free_bytes
+    # Amount of free memory on each server instance.
+    expr: node_memory_MemFree_bytes
+
+  - record: instance_memory_available_percent
+    # Percentage of memory available for new processes (a more reliable metric than free memory).
+    expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
