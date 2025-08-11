@@ -52,6 +52,16 @@ scrape_configs:
   - targets:
     - blackbox-exporter:9115
 
+- job_name: postgres-exporter-users
+  static_configs:
+  - targets:
+    - postgres-exporter-users:9187
+
+- job_name: postgres-exporter-loans
+  static_configs:
+  - targets:
+    - postgres-exporter-loans:9187
+
 - job_name: 'blackbox-exporter-routes'
   metrics_path: /probe
   params:

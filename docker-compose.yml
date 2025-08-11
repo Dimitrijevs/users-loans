@@ -2,6 +2,8 @@ services:
   postgres_db_users:
     image: postgres:17-alpine
     container_name: loans-users-postgres
+    networks:
+      - localprom
     environment:
       POSTGRES_DB: loans-users
       POSTGRES_USER: loansusers
@@ -11,9 +13,23 @@ services:
     volumes:
       - loans-users-postgres-data:/var/lib/postgresql/data
 
+  postgres-exporter-users:
+    image: prometheuscommunity/postgres-exporter
+    container_name: postgres-exporter-users
+    networks:
+      - localprom
+    environment:
+      DATA_SOURCE_NAME: "postgresql://loansusers:loansusers_password@postgres_db_users:5432/loans-users?sslmode=disable"
+    ports:
+      - "9187:9187"
+    depends_on:
+      - postgres_db_users
+
   postgres_db_loans:
     image: postgres:17-alpine
     container_name: loans-loans-postgres
+    networks:
+      - localprom
     environment:
       POSTGRES_DB: loans-loans
       POSTGRES_USER: loansusers
@@ -22,6 +38,18 @@ services:
       - "5441:5432"
     volumes:
       - loans-loan-postgres-data:/var/lib/postgresql/data
+
+  postgres-exporter-loans:
+    image: prometheuscommunity/postgres-exporter
+    container_name: postgres-exporter-loans
+    networks:
+      - localprom
+    environment:
+      DATA_SOURCE_NAME: "postgresql://loansusers:loansusers_password@postgres_db_loans:5432/loans-loans?sslmode=disable"
+    ports:
+      - "9188:9187"
+    depends_on:
+      - postgres_db_loans
 
   prometheus:
     image: prom/prometheus
