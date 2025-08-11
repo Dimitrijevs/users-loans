@@ -32,11 +32,19 @@ public class GatewayApplication {
 								.retry(retryConfig -> retryConfig.setRetries(3).setMethods(HttpMethod.GET).setBackoff(Duration.ofMillis(100), Duration.ofMillis(1000), 2, true)))
 						.uri("lb://USERS"))
 				.route(p -> p
+                    .path("/users/actuator/health")
+                    .filters(f -> f.setPath("/actuator/health"))
+                    .uri("lb://USERS"))
+				.route(p -> p
 						.path("/api/v1/loans/**")
 						.filters(f -> f.circuitBreaker(config -> config.setName("loansCircuitBreaker")
 								.setFallbackUri("forward:/contact-support"))
 								.retry(retryConfig -> retryConfig.setRetries(3).setMethods(HttpMethod.GET).setBackoff(Duration.ofMillis(100), Duration.ofMillis(1000), 2, true)))
 						.uri("lb://LOANS"))
+				.route(p -> p
+					.path("/loans/actuator/health")
+					.filters(f -> f.setPath("/actuator/health"))
+					.uri("lb://LOANS"))
 				.build();
 	}
 }

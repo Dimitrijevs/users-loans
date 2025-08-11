@@ -66,13 +66,15 @@ services:
     ports:
       - 9093:9093
 
-  # blackbox-exporter:
-  #   image: prom/blackbox-exporter
-  #   container_name: blackbox-exporter
-  #   volumes:
-  #     - "./monitoring/blackbox.yaml:/config/blackbox.yml"
-  #   ports:
-  #     - "9115:9115"
+  blackbox-exporter:
+    image: prom/blackbox-exporter
+    container_name: blackbox-exporter
+    networks:
+      - localprom
+    volumes:
+      - "./monitoring/blackbox.yaml:/config/blackbox_exporter/config.yml"
+    ports:
+      - "9115:9115"
 
   mailhog:
     image: jcalonso/mailhog:latest

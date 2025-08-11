@@ -46,3 +46,29 @@ scrape_configs:
   static_configs:
   - targets:
     - node-exporter:9100
+
+- job_name: blackbox-exporter
+  static_configs:
+  - targets:
+    - blackbox-exporter:9115
+
+- job_name: 'blackbox-exporter-routes'
+  metrics_path: /probe
+  params:
+    module: [ http_2xx ]
+  static_configs:
+  - targets:
+    - 'http://host.docker.internal:8090/actuator/health'
+    - 'http://host.docker.internal:8090/users/actuator/health'
+    - 'http://host.docker.internal:8090/loans/actuator/health'
+  # This relabeling is the key part that makes the blackbox exporter work.
+  relabel_configs:
+  # 1. Takes the target URL and saves it as a parameter for the exporter.
+  - source_labels: [ __address__ ]
+    target_label: __param_target
+  # 2. Makes the target URL the human-readable 'instance' label.
+  - source_labels: [ __param_target ]
+    target_label: instance
+  # 3. Changes the actual scrape target to the blackbox exporter's address.
+  - target_label: __address__
+    replacement: blackbox-exporter:9115

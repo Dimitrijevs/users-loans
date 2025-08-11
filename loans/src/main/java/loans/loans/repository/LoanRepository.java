@@ -5,8 +5,11 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import loans.loans.model.Loan;
+import loans.loans.model.LoanStatus;
 
 public interface LoanRepository extends JpaRepository<Loan, Integer> {
 
     List<Loan> findAllByEmailIgnoreCase(String email);
+
+    long countByStatus(LoanStatus status);
 }
