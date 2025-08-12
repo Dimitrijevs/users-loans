@@ -18,6 +18,11 @@ scrape_configs:
   - targets:
     - prometheus:9090
 
+- job_name: grafana
+  static_configs:
+  - targets:
+    - grafana:3000
+
 - job_name: eureka-service
   metrics_path: /actuator/prometheus
   static_configs:

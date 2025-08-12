@@ -20,6 +20,7 @@ public class LoanMetrics {
 
     @PostConstruct
     public void initializeMetrics() {
+        
         Gauge.builder("app_loans_approved_count", this.loanRepository, repo -> repo.countByStatus(LoanStatus.APPROVED))
              .description("The number of loans with APPROVED status in the database")
              .tag("service", "loan-service")
