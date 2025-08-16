@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import loans.loans.dto.LoanRequest;
 import loans.loans.dto.LoanResponse;
+import loans.loans.model.Loan;
 import loans.loans.service.LoanService;
 import lombok.RequiredArgsConstructor;
 
@@ -26,9 +27,16 @@ public class LoanController {
 
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<LoanResponse> allLoans(@RequestParam String userEmail) {
+    public List<LoanResponse> seachByEmail(@RequestParam String userEmail) {
 
-        return loanService.allLoans(userEmail);
+        return loanService.seachByEmail(userEmail);
+    }
+
+    @GetMapping("/all-loans")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Loan> allLoans() {
+
+        return loanService.allLoans();
     }
 
     @PostMapping("/create")

@@ -1,0 +1,35 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: AUTH
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/  # Eureka server URL for service discovery
+  instance:
+    hostname: localhost  # Eureka instance hostname
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Expose all actuator endpoints
+  endpoint:
+    health:
+      show-details: "always"  # Show detailed health info
+  metrics:
+    tags:
+      application: auth  # Add application tag to metrics
+
+jwt:
+  secret: "dc0d4dacdea097bc571a4adf040e6487d3cd9e3ad54a61b23495f0b54a6d68ab"
+  expiration: 3600000 # 1 hour
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.loadbalancer: DEBUG
+    com.netflix.discovery: DEBUG

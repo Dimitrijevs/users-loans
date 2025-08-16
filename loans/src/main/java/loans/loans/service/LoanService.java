@@ -27,7 +27,7 @@ public class LoanService {
 
     private final LoanMapper loanMapper;
 
-    public List<LoanResponse> allLoans(String userEmail) {
+    public List<LoanResponse> seachByEmail(String userEmail) {
         UserDTO user = userClient.findByEmail(userEmail);
 
         if (user == null) {
@@ -38,6 +38,10 @@ public class LoanService {
                 .stream()
                 .map(loan -> loanMapper.createDto(loan, user))
                 .toList();
+    }
+
+    public List<Loan> allLoans() {
+        return loanRepository.findAll();
     }
 
     public LoanResponse create(LoanRequest request) {
