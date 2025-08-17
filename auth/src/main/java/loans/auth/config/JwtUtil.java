@@ -12,7 +12,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import loans.auth.enums.UserRole;
+import loans.auth.dto.UserDTO;
 
 @Service
 public class JwtUtil {
@@ -43,18 +43,22 @@ public class JwtUtil {
         return getClaims(token).getExpiration();
     }
 
-    public String generate(Integer userId, UserRole role, String tokenType) {
-        Map<String, String> claims = Map.of("id", userId.toString(), "role", role.name());
-        long expMillis = "ACCESS".equalsIgnoreCase(tokenType)
-                ? Long.parseLong(expiration) * 1000
-                : Long.parseLong(expiration) * 1000 * 5;
+    public String generate(UserDTO user, String tokenType) {
+        Map<String, String> claims = Map.of(
+                "role", user.getRole().name(),
+                "email", user.getEmail());
+
+        // Parse the expiration string to long
+        long expirationMillis = "ACCESS".equalsIgnoreCase(tokenType)
+                ? Long.parseLong(expiration) // For ACCESS tokens
+                : Long.parseLong(expiration) * 5; // For REFRESH tokens (5x longer)
 
         final Date now = new Date();
-        final Date exp = new Date(now.getTime() + expMillis);
+        final Date exp = new Date(now.getTime() + expirationMillis);
 
         return Jwts.builder()
                 .claims(claims)
-                .subject(claims.get("id"))
+                .subject(user.getId().toString())
                 .issuedAt(now)
                 .expiration(exp)
                 .signWith(key)

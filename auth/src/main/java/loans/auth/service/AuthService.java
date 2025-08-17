@@ -61,7 +61,7 @@ public class AuthService {
     public TokenResponse login(LoginRequest request) {
         try {
             // This will throw UserNotFoundException if user doesn't exist
-            UserDTO user = userClient.findByEmailWithPassword(request.getEmail()); 
+            UserDTO user = userClient.findByEmailWithPassword(request.getEmail());
 
             System.out.println(user.toString());
 
@@ -80,13 +80,15 @@ public class AuthService {
             }
 
             // Generate tokens if credentials are valid
-            String accessToken = jwtUtil.generate(user.getId(), user.getRole(), "ACCESS");
+            String accessToken = jwtUtil.generate(user, "ACCESS");
             // String refreshToken = jwtUtil.generate(user.getId(), user.getRole(),
             // "REFRESH");
 
+            long expiresInSeconds = expiration / 1000;
+
             return TokenResponse.builder()
                     .token(accessToken)
-                    .expiresIn(expiration)
+                    .expiresIn(String.valueOf(expiresInSeconds)) // seconds
                     .build();
 
         } catch (UserNotFoundException e) {
@@ -94,48 +96,5 @@ public class AuthService {
             System.out.println("Invalid email or password test");
             throw new InvalidCredentialsException("Invalid email or password");
         }
-    }
-
-    // private final RestTemplate restTemplate;
-    // private final JwtUtil jwtUtil;
-
-    // public AuthResponse register(AuthRequest request) {
-    // //do validation if user exists in DB
-    // request.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
-    // UserVO registeredUser =
-    // restTemplate.postForObject("http://user-service/users", request,
-    // UserVO.class);
-
-    // String accessToken = jwtUtil.generate(registeredUser.getId(),
-    // registeredUser.getRole(), "ACCESS");
-    // String refreshToken = jwtUtil.generate(registeredUser.getId(),
-    // registeredUser.getRole(), "REFRESH");
-
-    // return new AuthResponse(accessToken, refreshToken);
-    // }
-
-    // Generates a JWT token for a given username
-    private String createTokenFromUsername(String username) {
-
-        long now = System.currentTimeMillis();
-
-        return Jwts.builder()
-                .subject(username)
-                .issuedAt(new Date(now))
-                .expiration(new Date(now + expiration))
-                .signWith(key, Jwts.SIG.HS256)
-                .compact();
-    }
-
-    private boolean isValidUser(String username, String password) {
-        // TODO: Replace with your actual user validation logic
-        // This could be:
-        // - Database lookup
-        // - LDAP authentication
-        // - External service call
-        // - etc.
-
-        // Simple hardcoded validation for demo (REMOVE IN PRODUCTION)
-        return "admin".equals(username) && "password".equals(password);
     }
 }

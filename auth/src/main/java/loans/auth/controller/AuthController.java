@@ -28,9 +28,9 @@ public class AuthController {
     // return ResponseEntity.ok(authService.register(request));
     // }
 
-    @GetMapping("/test")
+    @GetMapping("/unsecure")
     public ResponseEntity<String> test() {
-        return ResponseEntity.ok("AUTH service working");
+        return ResponseEntity.ok("hello from unsecure endpoint");
     }
 
     @PostMapping("/login")
