@@ -3,6 +3,7 @@ package loans.users.mapper;
 import org.springframework.stereotype.Component;
 
 import loans.users.dto.UserDTO;
+import loans.users.dto.UserResponseDTO;
 import loans.users.entity.User;
 
 @Component
@@ -19,6 +20,8 @@ public class UserMapper {
                 .lastname(dto.getLastname())
                 .email(dto.getEmail())
                 .age(dto.getAge())
+                .role(dto.getRole())
+                .password(dto.getPassword())
                 .build();
     }
 
@@ -34,6 +37,23 @@ public class UserMapper {
                 .lastname(entity.getLastname())
                 .email(entity.getEmail())
                 .age(entity.getAge())
+                .role(entity.getRole())
+                .build();
+    }
+
+    public UserResponseDTO createUserResponseDTO(User user) {
+
+        if (user == null) {
+            return null;
+        }
+
+        return UserResponseDTO.builder()
+                .id(user.getId())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .email(user.getEmail())
+                .age(user.getAge())
+                .role(user.getRole())
                 .build();
     }
 }

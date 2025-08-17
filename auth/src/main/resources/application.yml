@@ -1,9 +1,9 @@
 server:
-  port: 8086
+  port: 8086 
 
 spring:
   application:
-    name: AUTH
+    name: auth
 
 eureka:
   client:

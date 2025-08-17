@@ -36,4 +36,8 @@ public class UserDTO {
     @Min(value = 18, message = "User must be at least 18 years old.")
     @Max(value = 80, message = "User age cannot exceed 80 years.")
     private Integer age;
+
+    @NotEmpty(message = "Password cannot be empty")
+    @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
+    private String password;
 }

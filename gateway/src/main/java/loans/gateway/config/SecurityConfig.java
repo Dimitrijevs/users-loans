@@ -21,11 +21,9 @@ public class SecurityConfig {
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         // .pathMatchers("/api/v1/auth/**").permitAll()
-                        // .pathMatchers(HttpMethod.POST, "/api/v1/loans/**").authenticated()
+                        // .pathMatchers("/api/v1/loans/**").authenticated()
                         // .pathMatchers("/*/actuator/health").permitAll()
                         // .pathMatchers("/contact-support").permitAll()
-                        .pathMatchers(HttpMethod.GET, "/api/v1/auth/**").permitAll()
-                        .pathMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
                         .anyExchange().permitAll()
                 )
                 // .addFilterAt(jwtAuthFilter, SecurityWebFiltersOrder.AUTHENTICATION)

@@ -1,4 +1,4 @@
-package loans.users.dto;
+package loans.auth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import loans.users.entity.Role;
+import loans.auth.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserDTO {
 
     private Integer id;
@@ -39,9 +39,9 @@ public class UserDTO {
     private Integer age;
 
     @NotNull(message = "Role is required")
-    private Role role;
+    private UserRole role;
 
     @NotEmpty(message = "Password cannot be empty")
-    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
+    @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
     private String password;
 }
