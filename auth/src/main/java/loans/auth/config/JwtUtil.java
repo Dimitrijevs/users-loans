@@ -45,8 +45,7 @@ public class JwtUtil {
 
     public String generate(UserDTO user, String tokenType) {
         Map<String, String> claims = Map.of(
-                "role", user.getRole().name(),
-                "email", user.getEmail());
+                "role", user.getRole().name());
 
         // Parse the expiration string to long
         long expirationMillis = "ACCESS".equalsIgnoreCase(tokenType)
@@ -58,14 +57,14 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .claims(claims)
-                .subject(user.getId().toString())
+                .subject(user.getEmail())
                 .issuedAt(now)
                 .expiration(exp)
                 .signWith(key)
                 .compact();
     }
 
-    private boolean isExpired(String token) {
+    public boolean isExpired(String token) {
         return getExpirationDate(token).before(new Date());
     }
 }

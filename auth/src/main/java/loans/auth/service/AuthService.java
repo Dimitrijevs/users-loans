@@ -97,4 +97,8 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid email or password");
         }
     }
+
+    public boolean isExpired(String token) {
+        return jwtUtil.isExpired(token);
+    }
 }

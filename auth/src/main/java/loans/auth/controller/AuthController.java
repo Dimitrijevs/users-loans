@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import loans.auth.dto.LoginRequest;
+import loans.auth.dto.TokenRequest;
 import loans.auth.dto.TokenResponse;
 import loans.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,12 @@ public class AuthController {
     @ResponseStatus(HttpStatus.OK)
     public TokenResponse login(@RequestBody LoginRequest registerRequest) {
         return authService.login(registerRequest);
+    }
+
+    @PostMapping("/is-expired")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean isExpired(@RequestBody TokenRequest request) {
+        String token = request.getToken();
+        return authService.isExpired(token);
     }
 }
