@@ -1,5 +1,7 @@
 package loans.gateway.config;
 
+import java.util.List;
+
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -7,15 +9,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import reactor.core.publisher.Mono;
 
 @Configuration
@@ -25,54 +31,83 @@ public class JwtAuthFilter implements WebFilter {
     @Value("${jwt.secret}")
     private String secret;
 
+    @Value("${jwt.expiration}")
+    private Long expiration;
+
+    private SecretKey key;
+
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+    }
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String path = exchange.getRequest().getPath().value();
 
-        System.out.println("Processing request for path: " + path); // Debug log
+        System.out.println("Processing request for path: " + path);
 
-        // // Skip JWT validation for public endpoints
-        // if (isPublicPath(path)) {
-        //     System.out.println("Public path detected, skipping JWT validation"); // Debug log
-        //     return chain.filter(exchange);
-        // }
+        // Skip JWT validation for public endpoints
+        if (isPublicPath(path)) {
+            return chain.filter(exchange);
+        }
 
-        // String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
-        // if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        //     return this.unauthorized(exchange);
-        // }
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return this.unauthorizedWithOutMessage(exchange);
+        }
 
-        // String token = authHeader.substring(7);
+        String token = authHeader.substring(7);
 
-        // try {
-        //     SecretKey key = this.key();
+        try {
 
-        //     Jwts.parser()
-        //             .verifyWith(key)
-        //             .build()
-        //             .parseSignedClaims(token);
+            Claims claims = Jwts.parser()
+                    .verifyWith(this.key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
 
-        // } catch (JwtException e) {
-        //     return this.unauthorized(exchange);
-        // }
+            String role = (String) claims.get("role");
+            List<SimpleGrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_" + role)
+            );
 
-        // If the token is valid, continue the filter chain
-        return chain.filter(exchange);
+            UsernamePasswordAuthenticationToken authentication = 
+                new UsernamePasswordAuthenticationToken(
+                    claims.getSubject(), // principal (email)
+                    null, // credentials (no password needed)
+                    authorities // authorities (ROLE_USER, ROLE_ADMIN, ROLE_SERVICE)
+                );
+
+            // Set authentication in reactive security context and continue
+            return chain.filter(exchange)
+                    .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
+
+        } catch (JwtException e) {
+            
+            return this.unauthorizedWithMessage(exchange, e.getMessage());
+        }
     }
 
     private boolean isPublicPath(String path) {
-        return path.startsWith("/api/v1/auth/") || 
-               path.contains("/actuator/health") ||
-               path.equals("/contact-support");
+        return path.startsWith("/api/v1/auth/") ||
+                path.contains("/actuator") ||
+                path.equals("/contact-support");
     }
 
-    private SecretKey key () {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+    private Mono<Void> unauthorizedWithMessage(ServerWebExchange exchange, String message) {
+        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+
+        System.out.println(message);
+
+        return exchange.getResponse().setComplete();
     }
 
-    private Mono<Void> unauthorized(ServerWebExchange exchange) {
-        exchange.getResponse().setStatusCode(HttpStatus.OK);
+    private Mono<Void> unauthorizedWithOutMessage(ServerWebExchange exchange) {
+
+        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+
         return exchange.getResponse().setComplete();
     }
 }

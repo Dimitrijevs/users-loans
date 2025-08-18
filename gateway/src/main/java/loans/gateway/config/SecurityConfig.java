@@ -20,13 +20,17 @@ public class SecurityConfig {
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        // .pathMatchers("/api/v1/auth/**").permitAll()
-                        // .pathMatchers("/api/v1/loans/**").authenticated()
-                        // .pathMatchers("/*/actuator/health").permitAll()
-                        // .pathMatchers("/contact-support").permitAll()
-                        .anyExchange().permitAll()
+                        .pathMatchers("/api/v1/auth/**").permitAll()
+                        .pathMatchers("/*/actuator/health").permitAll()
+                        .pathMatchers("/actuator/**").permitAll()
+                        .pathMatchers("/contact-support").permitAll()
+
+                        .pathMatchers("/api/v1/loans/**").authenticated()
+                        .pathMatchers("/api/v1/users/**").authenticated()
+                        
+                        .anyExchange().authenticated()
                 )
-                // .addFilterAt(jwtAuthFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterAt(jwtAuthFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
     }
 }

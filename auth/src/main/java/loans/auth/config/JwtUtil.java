@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import loans.auth.dto.UserDTO;
@@ -27,13 +28,13 @@ public class JwtUtil {
 
     @PostConstruct
     public void initKey() {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
     public Claims getClaims(String token) {
 
         return Jwts.parser()
-                .verifyWith(key)
+                .verifyWith(this.key)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -60,7 +61,7 @@ public class JwtUtil {
                 .subject(user.getEmail())
                 .issuedAt(now)
                 .expiration(exp)
-                .signWith(key)
+                .signWith(this.key)
                 .compact();
     }
 

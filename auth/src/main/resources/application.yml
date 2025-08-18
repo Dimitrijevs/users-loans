@@ -25,7 +25,7 @@ management:
       application: auth  # Add application tag to metrics
 
 jwt:
-  secret: "dc0d4dacdea097bc571a4adf040e6487d3cd9e3ad54a61b23495f0b54a6d68ab"
+  secret: "OT39JZ2rZQ2D/EbnJu9trUMV3gRptzA1Dk3wVqEn6VHnIAy4hs3Ml/Aoh0ckROWCH/oydgsDzFonYtlJmDfnY98JRGSWw04S+f6dhIRv+CiLTRtsFPxrYFLCjBDZZVOkTA2QuFyuHMy+ZGtEagSmF6xQm0DTBqb8shoqfsj+9P"
   expiration: 3600000 # 1 hour
 
 logging:

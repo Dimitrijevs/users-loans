@@ -1,25 +1,14 @@
 package loans.auth.service;
 
-import java.util.Date;
-
-import javax.crypto.SecretKey;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import loans.auth.client.UserClient;
 import loans.auth.config.JwtUtil;
 import loans.auth.dto.LoginRequest;
 import loans.auth.dto.TokenResponse;
 import loans.auth.dto.UserDTO;
 import loans.auth.exception.InvalidCredentialsException;
-import loans.auth.exception.UserAlreadyExistsException;
 import loans.auth.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -32,31 +21,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     private final JwtUtil jwtUtil;
-
-    @Value("${jwt.secret}")
-    private String secret;
-
-    @Value("${jwt.expiration}")
-    private Long expiration;
-
-    private SecretKey key;
-
-    @PostConstruct
-    public void init() {
-        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
-    }
-
-    // public TokenResponse authenticateAndGenerateToken(LoginRequest loginRequest)
-    // {
-
-    // if (isValidUser(loginRequest.getUsername(), loginRequest.getPassword())) {
-    // String token = createTokenFromUsername(loginRequest.getUsername());
-    // long expiresIn = expiration;
-    // return new TokenResponse(token, expiresIn);
-    // } else {
-    // throw new RuntimeException("Invalid credentials");
-    // }
-    // }
 
     public TokenResponse login(LoginRequest request) {
         try {
@@ -84,11 +48,8 @@ public class AuthService {
             // String refreshToken = jwtUtil.generate(user.getId(), user.getRole(),
             // "REFRESH");
 
-            long expiresInSeconds = expiration / 1000;
-
             return TokenResponse.builder()
                     .token(accessToken)
-                    .expiresIn(String.valueOf(expiresInSeconds)) // seconds
                     .build();
 
         } catch (UserNotFoundException e) {
