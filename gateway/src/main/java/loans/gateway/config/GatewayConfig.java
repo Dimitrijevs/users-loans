@@ -41,8 +41,10 @@ public class GatewayConfig {
                         .path("/loans/actuator/health")
                         .filters(f -> f.setPath("/actuator/health"))
                         .uri("lb://LOANS"))
-                .route("auth-route", p -> p 
+                .route(p -> p 
                         .path("/api/v1/auth/**")
+                        .filters(f -> f.circuitBreaker(config -> config.setName("authCircuitBreaker")
+                                .setFallbackUri("forward:/contact-support")))
                         .uri("lb://AUTH"))
                 .build();
     }
