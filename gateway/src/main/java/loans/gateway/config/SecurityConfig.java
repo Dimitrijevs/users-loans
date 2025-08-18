@@ -28,7 +28,10 @@ public class SecurityConfig {
                         // Allow user creation without authentication
                         .pathMatchers(HttpMethod.POST, "/api/v1/users/create").permitAll()
 
-                        .pathMatchers("/api/v1/loans/**").authenticated()
+                        .pathMatchers(HttpMethod.GET, "/api/v1/users/all").hasRole("ADMIN")
+
+                        .pathMatchers("/api/v1/loans/**").hasRole("ADMIN")
+
                         .pathMatchers("/api/v1/users/**").authenticated()
                         
                         .anyExchange().authenticated()
