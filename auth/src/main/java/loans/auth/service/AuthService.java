@@ -3,12 +3,16 @@ package loans.auth.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import io.jsonwebtoken.Claims;
 import loans.auth.client.UserClient;
 import loans.auth.config.JwtUtil;
 import loans.auth.dto.LoginRequest;
+import loans.auth.dto.TokenRequest;
 import loans.auth.dto.TokenResponse;
 import loans.auth.dto.UserDTO;
 import loans.auth.exception.InvalidCredentialsException;
+import loans.auth.exception.InvalidTokenException;
+import loans.auth.exception.TokenExpiredException;
 import loans.auth.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -27,16 +31,6 @@ public class AuthService {
             // This will throw UserNotFoundException if user doesn't exist
             UserDTO user = userClient.findByEmailWithPassword(request.getEmail());
 
-            System.out.println(user.toString());
-
-            // Add debugging logs
-            System.out.println("Raw password from request: " + request.getPassword());
-            System.out.println("Encoded password from DB: " + user.getPassword());
-            System.out.println(
-                    "Password match result: " + passwordEncoder.matches(request.getPassword(), user.getPassword()));
-
-            System.out.println(user.toString());
-
             // Verify password
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 System.out.println("test123");
@@ -45,21 +39,58 @@ public class AuthService {
 
             // Generate tokens if credentials are valid
             String accessToken = jwtUtil.generate(user, "ACCESS");
-            // String refreshToken = jwtUtil.generate(user.getId(), user.getRole(),
-            // "REFRESH");
+
+            String refreshToken = jwtUtil.generate(user, "REFRESH");
 
             return TokenResponse.builder()
-                    .token(accessToken)
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
                     .build();
 
         } catch (UserNotFoundException e) {
+
             // User doesn't exist - don't reveal this, use generic message
-            System.out.println("Invalid email or password test");
             throw new InvalidCredentialsException("Invalid email or password");
         }
     }
 
-    public boolean isExpired(String token) {
+    public boolean isExpired(TokenRequest request) {
+
+        String token = request.getToken();
+
         return jwtUtil.isExpired(token);
+    }
+
+    public TokenResponse refreshToken(TokenRequest request) {
+
+        String refreshToken = request.getToken();
+
+        if(jwtUtil.isExpired(refreshToken)) {
+            throw new TokenExpiredException("Token is expired, please log in again.");
+        }
+
+        Claims claims = jwtUtil.getClaims(refreshToken);
+
+        if (!"REFRESH".equals(claims.get("token_type", String.class))) {
+            throw new InvalidTokenException("Invalid token type. Only refresh tokens can be used for refreshing.");
+        }
+
+        try {
+            // This will throw UserNotFoundException if user doesn't exist
+            UserDTO user = userClient.findByEmailWithPassword(claims.get("sub", String.class));
+
+            // Generate tokens if credentials are valid
+            String accessToken = jwtUtil.generate(user, "ACCESS");
+
+            return TokenResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
+
+        } catch (UserNotFoundException e) {
+
+            // User doesn't exist - don't reveal this, use generic message
+            throw new InvalidCredentialsException("Invalid email.");
+        }
     }
 }

@@ -23,15 +23,9 @@ public class AuthController {
 
     private final AuthService authService;
 
-    // @@PostMapping(value = "/register")
-    // public ResponseEntity<TokenResponse> register(@RequestBody RegisterRequest
-    // request) {
-    // return ResponseEntity.ok(authService.register(request));
-    // }
-
-    @GetMapping("/unsecure")
+    @GetMapping("/test")
     public ResponseEntity<String> test() {
-        return ResponseEntity.ok("hello from unsecure endpoint");
+        return ResponseEntity.ok("Hello from unsecure endpoint");
     }
 
     @PostMapping("/login")
@@ -43,7 +37,14 @@ public class AuthController {
     @PostMapping("/is-expired")
     @ResponseStatus(HttpStatus.OK)
     public boolean isExpired(@RequestBody TokenRequest request) {
-        String token = request.getToken();
-        return authService.isExpired(token);
+
+        return authService.isExpired(request);
+    }
+
+    @PostMapping("/refresh-token")
+    @ResponseStatus(HttpStatus.OK)
+    public TokenResponse refreshToken(@RequestBody TokenRequest request) {
+        
+        return authService.refreshToken(request);
     }
 }

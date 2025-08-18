@@ -46,12 +46,13 @@ public class JwtUtil {
 
     public String generate(UserDTO user, String tokenType) {
         Map<String, String> claims = Map.of(
-                "role", user.getRole().name());
+                "role", user.getRole().name(),
+                "token_type", tokenType);
 
         // Parse the expiration string to long
         long expirationMillis = "ACCESS".equalsIgnoreCase(tokenType)
-                ? Long.parseLong(expiration) // For ACCESS tokens
-                : Long.parseLong(expiration) * 5; // For REFRESH tokens (5x longer)
+                ? Long.parseLong(expiration) // For ACCESS tokensc ( 1h )
+                : Long.parseLong(expiration) * 24; // For REFRESH tokens (24x longer) ( 1 day )
 
         final Date now = new Date();
         final Date exp = new Date(now.getTime() + expirationMillis);
