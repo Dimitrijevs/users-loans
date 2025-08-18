@@ -1,5 +1,7 @@
 package loans.loans.dto;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
@@ -51,6 +53,12 @@ public class LoanResponse {
 
     @NotNull
     private Float percentage;
+
+    // loan
+    @NotNull
+    @Min(value = 5000, message = "Minimum loan amount is 5000 euros.")
+    @Max(value = 5000000, message = "Maximum loan amount is 5000000 euros.")
+    private BigDecimal amount; 
 
     @NotNull
     @Enumerated(EnumType.STRING)

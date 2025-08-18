@@ -1,5 +1,7 @@
 package loans.loans.dto;
 
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -29,4 +31,10 @@ public class LoanRequest {
 
     @NotNull
     private Float percentage;
+
+    // loan
+    @NotNull
+    @Min(value = 5000, message = "Minimum loan amount is 5000 euros.")
+    @Max(value = 5000000, message = "Maximum loan amount is 5000000 euros.")
+    private BigDecimal amount; 
 }

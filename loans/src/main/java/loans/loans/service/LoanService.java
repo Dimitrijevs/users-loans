@@ -56,14 +56,7 @@ public class LoanService {
         boolean hasApprovedLoan = loans.stream()
             .anyMatch(loan -> loan.getStatus() == LoanStatus.APPROVED);
 
-        Loan loan = Loan.builder()
-                .userId(user.getId())
-                .email(user.getEmail())
-                .age(user.getAge())
-                .years(request.getYears())
-                .percentage(request.getPercentage())
-                .status(hasApprovedLoan ? LoanStatus.REJECTED : LoanStatus.APPROVED)
-                .build();
+        Loan loan = loanMapper.createLoan(user, request, hasApprovedLoan);
 
         loanRepository.save(loan);
 
