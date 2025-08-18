@@ -7,8 +7,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import loans.users.dto.UserDTO;
-import loans.users.dto.UserResponseDTO;
 import loans.users.entity.User;
+import loans.users.exception.UserAlreadyExists;
 import loans.users.exception.UserCreationException;
 import loans.users.exception.UserNotFoundException;
 import loans.users.mapper.UserMapper;
@@ -40,6 +40,12 @@ public class UserService {
 
     public User create(UserDTO request) {
 
+        Optional<User> userExist = userRepository.findByEmailIgnoreCase(request.getEmail());
+
+        if(userExist.isPresent()) {
+            throw new UserAlreadyExists("User with email " + request.getEmail() + " already exists");
+        }
+
         request.setPassword(passwordEncoder.encode(request.getPassword()));
 
         User user = userMapper.createUser(request);
@@ -53,32 +59,11 @@ public class UserService {
         return user;
     }
 
-    // public UserDTO create(UserDTO request) {
-    // // Hash password before creating user entity
-    // request.setPassword(passwordEncoder.encode(request.getPassword()));
-
-    // User user = userMapper.createUser(request);
-
-    // if (user == null) {
-    // throw new UserCreationException("Cannot create user from null or invalid
-    // data");
-    // }
-
-    // User savedUser = userRepository.save(user);
-
-    // UserDTO userDto = userMapper.createDto(savedUser);
-
-    // // Clear password from response for security
-    // userDto.setPassword(null);
-
-    // return userDto;
-    // }
-
     public boolean checkIfUserExists(String userEmail) {
 
         Optional<User> userOptional = userRepository.findByEmailIgnoreCase(userEmail);
 
-        return userOptional.isPresent() ? true : false;
+        return userOptional.isPresent();
     }
 
     public UserDTO findByEmail(String userEmail) {

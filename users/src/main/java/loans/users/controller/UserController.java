@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.ws.rs.ServiceUnavailableException;
 import loans.users.dto.UserDTO;
-import loans.users.dto.UserResponseDTO;
 import loans.users.entity.User;
 import loans.users.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +42,10 @@ public class UserController {
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public String create(@RequestBody @Validated UserDTO request) {
-        return "User created succesfully";
+        
+        userService.create(request);
+
+        return "User created succesfully!";
     }
 
     @GetMapping("/{userEmail}")

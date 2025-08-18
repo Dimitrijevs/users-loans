@@ -25,6 +25,9 @@ public class SecurityConfig {
                         .pathMatchers("/actuator/**").permitAll()
                         .pathMatchers("/contact-support").permitAll()
 
+                        // Allow user creation without authentication
+                        .pathMatchers(HttpMethod.POST, "/api/v1/users/create").permitAll()
+
                         .pathMatchers("/api/v1/loans/**").authenticated()
                         .pathMatchers("/api/v1/users/**").authenticated()
                         

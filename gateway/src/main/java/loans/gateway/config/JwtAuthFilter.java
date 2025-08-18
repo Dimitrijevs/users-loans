@@ -44,9 +44,9 @@ public class JwtAuthFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String path = exchange.getRequest().getPath().value();
-
+        
         System.out.println("Processing request for path: " + path);
-
+        
         // Skip JWT validation for public endpoints
         if (isPublicPath(path)) {
             return chain.filter(exchange);
@@ -93,7 +93,8 @@ public class JwtAuthFilter implements WebFilter {
     private boolean isPublicPath(String path) {
         return path.startsWith("/api/v1/auth/") ||
                 path.contains("/actuator") ||
-                path.equals("/contact-support");
+                path.equals("/contact-support") ||
+                path.equals("/api/v1/users/create");
     }
 
     private Mono<Void> unauthorizedWithMessage(ServerWebExchange exchange, String message) {
