@@ -10,8 +10,8 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>loans</groupId>
-	<artifactId>gateway</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>gateway-service</artifactId>
+	<version>1.0</version>
 	<name>gateway</name>
 	<description>Demo project for Spring Boot</description>
 	<url />

@@ -1,0 +1,22 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+
+# Name of the binding
+metadata:
+  name: admin-user
+
+# This part defines which cluster-wide role is being used.
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  # Use the built-in `cluster-admin` role, which has full access.
+  name: cluster-admin
+
+# This part defines who gets the permissions.
+subjects:
+# The subject is a service account.
+- kind: ServiceAccount
+  # The name of the service account.
+  name: admin-user
+  # The namespace where the service account is.
+  namespace: kubernetes-dashboard
