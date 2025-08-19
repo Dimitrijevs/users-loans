@@ -23,18 +23,6 @@ spring:
               enabled: false  # Disable auto-generated routes from Eureka services
               lower-case-service-id: true  # Convert service names to lowercase in routes
 
-  # security:
-  #   oauth2:
-  #     resourceserver:
-  #       jwt:
-  #         jwk-set-uri: "http://localhost:7001/realms/master/protocol/openid-connect/certs"
-  
-# logging:
-#   level:
-#     org.springframework: DEBUG
-#     org.springframework.boot.autoconfigure: DEBUG
-#     root: INFO
-
 eureka:
   client:
     serviceUrl:

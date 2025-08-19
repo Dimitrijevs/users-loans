@@ -1,4 +1,155 @@
 services:
+  gateway-service:
+    image: gleb8/gateway-service:latest
+    container_name: gateway-service
+    networks:
+      - localprom
+    ports:
+      - "8090:8090"
+    environment:
+
+      # Activate the docker profile
+      SPRING_PROFILES_ACTIVE: docker
+
+      # Server settings
+      SERVER_PORT: 8090
+      
+      # Application name
+      SPRING_APPLICATION_NAME: gateway
+      
+      # JWT settings
+      JWT_SECRET: "OT39JZ2rZQ2D/EbnJu9trUMV3gRptzA1Dk3wVqEn6VHnIAy4hs3Ml/Aoh0ckROWCH/oydgsDzFonYtlJmDfnY98JRGSWw04S+f6dhIRv+CiLTRtsFPxrYFLCjBDZZVOkTA2QuFyuHMy+ZGtEagSmF6xQm0DTBqb8shoqfsj+9P"
+      JWT_EXPIRATION: 3600000
+      
+      # Eureka client settings
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_INSTANCE_HOSTNAME: gateway-service
+      
+      # Spring Cloud Gateway settings
+      SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_HTTPCLIENT_CONNECT_TIMEOUT: 2000
+      SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_HTTPCLIENT_RESPONSE_TIMEOUT: 4000
+      SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_DISCOVERY_LOCATOR_ENABLED: false
+      SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_DISCOVERY_LOCATOR_LOWER_CASE_SERVICE_ID: true
+
+      # Management/Actuator settings
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: always
+      MANAGEMENT_METRICS_TAGS_APPLICATION: gateway
+      MANAGEMENT_HEALTH_CIRCUITBREAKERS_ENABLED: true
+      MANAGEMENT_HEALTH_RATELIMITERS_ENABLED: true
+      
+      # Resilience4j Circuit Breaker settings
+      RESILIENCE4J_CIRCUITBREAKER_CONFIGS_DEFAULT_REGISTERHEALTHINDICATOR: true
+      RESILIENCE4J_CIRCUITBREAKER_CONFIGS_DEFAULT_SLIDINGWINDOWSIZE: 10
+      RESILIENCE4J_CIRCUITBREAKER_CONFIGS_DEFAULT_MINIMUMNUMBEROFCALLS: 5
+      RESILIENCE4J_CIRCUITBREAKER_CONFIGS_DEFAULT_PERMITTEDNUMBEROFCALLSINHALFOPENSTATE: 3
+      RESILIENCE4J_CIRCUITBREAKER_CONFIGS_DEFAULT_AUTOMATICTRANSITIONFROMOPENTOHALFOPENABLED: true
+      RESILIENCE4J_CIRCUITBREAKER_CONFIGS_DEFAULT_WAITDURATIONINOPENSTATE: 8000
+      RESILIENCE4J_CIRCUITBREAKER_CONFIGS_DEFAULT_EVENTCONSUMERBUFFERSIZE: 100
+    depends_on:
+      - eureka-server
+      - users-service
+      - loans-service
+      - auth-service
+
+  eureka-server:
+    image: gleb8/eureka-server:latest
+    container_name: eureka-server
+    networks:
+      - localprom
+    ports:
+      - "8761:8761"
+    environment:
+
+      # Activate the docker profile
+      SPRING_PROFILES_ACTIVE: docker
+
+      # Server settings
+      SERVER_PORT: 8761
+      
+      # Application name
+      SPRING_APPLICATION_NAME: eureka-server
+      
+      # Eureka server settings
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: false
+      EUREKA_CLIENT_FETCH_REGISTRY: false
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_INSTANCE_HOSTNAME: eureka-server
+
+      # Cache / fetch settings
+      EUREKA_CLIENT_ENABLE_DELTA: true
+      EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS: 30
+      EUREKA_CLIENT_FETCH_REMOTE_REGIONS: false
+
+      # Management/Actuator settings
+      MANAGEMENT_METRICS_TAGS_APPLICATION: eureka
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
+
+  auth-service:
+    image: gleb8/auth-service:1.0
+    container_name: auth-service
+    networks:
+      - localprom
+    ports:
+      - "8086:8086"
+    environment:
+      # Server settings
+      SERVER_PORT: 8086
+      
+      # Application name
+      SPRING_APPLICATION_NAME: auth
+      
+      # Eureka client settings
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_INSTANCE_HOSTNAME: auth-service
+      
+      # JWT settings (same as gateway for token compatibility)
+      JWT_SECRET: "OT39JZ2rZQ2D/EbnJu9trUMV3gRptzA1Dk3wVqEn6VHnIAy4hs3Ml/Aoh0ckROWCH/oydgsDzFonYtlJmDfnY98JRGSWw04S+f6dhIRv+CiLTRtsFPxrYFLCjBDZZVOkTA2QuFyuHMy+ZGtEagSmF6xQm0DTBqb8shoqfsj+9P"
+      JWT_EXPIRATION: 3600000
+      
+      # Management/Actuator settings
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: always
+      MANAGEMENT_METRICS_TAGS_APPLICATION: auth
+    depends_on:
+      - eureka-server
+      
+  users-service:
+    image: gleb8/users-service:latest
+    container_name: users-service
+    networks:
+      - localprom
+    ports:
+      - "8081:8080"
+    environment:
+
+      # Activate the docker profile
+      SPRING_PROFILES_ACTIVE: docker
+
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db_users:5432/loans-users
+      SPRING_DATASOURCE_USERNAME: loansusers
+      SPRING_DATASOURCE_PASSWORD: loansusers_password
+      
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_INSTANCE_HOSTNAME: users-service
+
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: true
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: true
+
+      SPRING_APPLICATION_NAME: users
+      SERVER_PORT: 8080
+
+      MANAGEMENT_METRICS_TAGS_APPLICATION: users
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
+
+      RESILIENCE4J_RATELIMITER_CONFIGS_DEFAULT_TIMEOUT_DURATION: 1000
+      RESILIENCE4J_RATELIMITER_CONFIGS_DEFAULT_LIMIT_REFRESH_PERIOD: 10000
+      RESILIENCE4J_RATELIMITER_CONFIGS_DEFAULT_LIMIT_FOR_PERIOD: 20
+    depends_on:
+      - postgres_db_users
+      - eureka-server
+
   postgres_db_users:
     image: postgres:17-alpine
     container_name: loans-users-postgres
@@ -24,6 +175,39 @@ services:
       - "9187:9187"
     depends_on:
       - postgres_db_users
+
+  loans-service:
+    image: gleb8/loans-service:1.0
+    container_name: loans-service
+    networks:
+      - localprom
+    ports:
+      - "8082:8080"
+    environment:
+
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db_loans:5432/loans-loans
+      SPRING_DATASOURCE_USERNAME: loansusers
+      SPRING_DATASOURCE_PASSWORD: loansusers_password
+      
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_INSTANCE_HOSTNAME: loans-service
+
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: true
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: true
+
+      SPRING_APPLICATION_NAME: loans
+      SERVER_PORT: 8080
+
+      MANAGEMENT_METRICS_TAGS_APPLICATION: loans
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
+
+      RESILIENCE4J_RATELIMITER_CONFIGS_DEFAULT_TIMEOUT_DURATION: 1000
+      RESILIENCE4J_RATELIMITER_CONFIGS_DEFAULT_LIMIT_REFRESH_PERIOD: 10000
+      RESILIENCE4J_RATELIMITER_CONFIGS_DEFAULT_LIMIT_FOR_PERIOD: 20
+    depends_on:
+      - postgres_db_loans
+      - eureka-server
 
   postgres_db_loans:
     image: postgres:17-alpine
@@ -104,7 +288,6 @@ services:
     ports:
       - "9115:9115"
 
-  
   # Keycloak Database
   postgres_db_keycloak:
     image: postgres:17-alpine

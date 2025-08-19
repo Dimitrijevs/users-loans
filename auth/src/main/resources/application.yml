@@ -27,9 +27,3 @@ management:
 jwt:
   secret: "OT39JZ2rZQ2D/EbnJu9trUMV3gRptzA1Dk3wVqEn6VHnIAy4hs3Ml/Aoh0ckROWCH/oydgsDzFonYtlJmDfnY98JRGSWw04S+f6dhIRv+CiLTRtsFPxrYFLCjBDZZVOkTA2QuFyuHMy+ZGtEagSmF6xQm0DTBqb8shoqfsj+9P"
   expiration: 3600000 # 1 hour
-
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.cloud.loadbalancer: DEBUG
-    com.netflix.discovery: DEBUG
