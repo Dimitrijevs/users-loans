@@ -1,0 +1,569 @@
+# Gateway Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # unique name of this deployment
+  name: gateway-service-deployment
+
+  # tags, classes attached to this deployment
+  labels:
+    app: gateway-service
+spec:
+  replicas: 1
+
+  # tells deployment which pods to manage based on a labels
+  # This deployment manages pods with the 'app: gateway-service' label
+  selector:
+    matchLabels:
+      app: gateway-service
+
+  # blueprint for pods
+  template:
+    metadata:
+      # pots this labels to every pod that i create
+      labels:
+        app: gateway-service
+
+    # things that goes inside each pod
+    spec:
+      containers:
+      - name: gateway-service
+        image: gleb8/gateway-service:latest
+        ports:
+        - containerPort: 8090
+        resources:
+          requests:
+            memory: "256Mi" # ram used
+            cpu: "250m" # 0.25 of a cpu core in use
+          limits:
+            memory: "512Mi" # max ram to use
+            cpu: "500m" # 0.5 max of a cpu core to use
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: SPRING_PROFILES_ACTIVE
+        - name: SERVER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: SERVER_PORT_GATEWAY
+        - name: SPRING_APPLICATION_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: SPRING_APPLICATION_NAME_GATEWAY
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: JWT_SECRET
+        - name: JWT_EXPIRATION
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: JWT_EXPIRATION
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        - name: EUREKA_INSTANCE_HOSTNAME
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: EUREKA_INSTANCE_HOSTNAME_GATEWAY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+spec:
+  selector:
+    app: gateway-service
+  ports:
+  - port: 8090
+    targetPort: 8090
+  type: LoadBalancer
+---
+
+# Eureka Server
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # unique name of this deployment
+  name: eureka-server-deployment
+
+  # tags, classes that sticks with this deployment
+  labels:
+    app: eureka-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka-server
+  template:
+    metadata:
+      labels:
+        app: eureka-server
+    spec:
+      containers:
+      - name: eureka-server
+        image: gleb8/eureka-server:latest
+        ports:
+        - containerPort: 8761
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: SPRING_PROFILES_ACTIVE
+        - name: SERVER_PORT
+          value: "8761"
+        - name: SPRING_APPLICATION_NAME
+          value: "eureka-server"
+        - name: EUREKA_CLIENT_REGISTER_WITH_EUREKA
+          value: "false"
+        - name: EUREKA_CLIENT_FETCH_REGISTRY
+          value: "false"
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        - name: EUREKA_INSTANCE_HOSTNAME
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: EUREKA_INSTANCE_HOSTNAME_EUREKA
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-server
+spec:
+  selector:
+    app: eureka-server
+  ports:
+  - port: 8761
+    targetPort: 8761
+  type: LoadBalancer
+---
+
+# Auth Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service-deployment
+  labels:
+    app: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: gleb8/auth-service:1.0
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        env:
+        - name: SERVER_PORT
+          value: "8080"
+        - name: SPRING_APPLICATION_NAME
+          value: "auth"
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          value: "http://eureka-server-service:8761/eureka/"
+        - name: EUREKA_INSTANCE_HOSTNAME
+          value: "auth-service"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: JWT_SECRET
+        - name: JWT_EXPIRATION
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: JWT_EXPIRATION
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  selector:
+    app: auth-service
+  ports:
+  - name: internal
+    port: 8080
+    targetPort: 8080
+  - name: external
+    port: 8086
+    targetPort: 8080
+  type: LoadBalancer
+---
+
+# Users Database
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-users-deployment
+  labels:
+    app: postgres-users
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-users
+  template:
+    metadata:
+      labels:
+        app: postgres-users
+    spec:
+      containers:
+      - name: postgres-users
+        image: postgres:17-alpine
+        ports:
+        - containerPort: 5432
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        env:
+        - name: POSTGRES_DB
+          value: "loans-users"
+        - name: POSTGRES_USER
+          value: "loansusers"
+        - name: POSTGRES_PASSWORD
+          value: "loansusers_password"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-users-service
+spec:
+  selector:
+    app: postgres-users
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+# Users Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-service-deployment
+  labels:
+    app: users-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users-service
+  template:
+    metadata:
+      labels:
+        app: users-service
+    spec:
+      containers:
+      - name: users-service
+        image: gleb8/users-service:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "docker"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:postgresql://postgres-users-service:5432/loans-users"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "loansusers"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "loansusers_password"
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          value: "http://eureka-server-service:8761/eureka/"
+        - name: EUREKA_INSTANCE_HOSTNAME
+          value: "users-service"
+        - name: SPRING_APPLICATION_NAME
+          value: "users"
+        - name: SERVER_PORT
+          value: "8080"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-service
+spec:
+  selector:
+    app: users-service
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
+
+# Loans Database
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-loans-deployment
+  labels:
+    app: postgres-loans
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-loans
+  template:
+    metadata:
+      labels:
+        app: postgres-loans
+    spec:
+      containers:
+      - name: postgres-loans
+        image: postgres:17-alpine
+        ports:
+        - containerPort: 5432
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        env:
+        - name: POSTGRES_DB
+          value: "loans-loans"
+        - name: POSTGRES_USER
+          value: "loansusers"
+        - name: POSTGRES_PASSWORD
+          value: "loansusers_password"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-loans-service
+spec:
+  selector:
+    app: postgres-loans
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+# Loans Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loans-service
+  labels:
+    app: loans-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loans-service
+  template:
+    metadata:
+      labels:
+        app: loans-service
+    spec:
+      containers:
+      - name: loans-service
+        image: gleb8/loans-service:1.0
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:postgresql://postgres-loans-service:5432/loans-loans"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "loansusers"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "loansusers_password"
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          value: "http://eureka-server-service:8761/eureka/"
+        - name: EUREKA_INSTANCE_HOSTNAME
+          value: "loans-service"
+        - name: SPRING_APPLICATION_NAME
+          value: "loans"
+        - name: SERVER_PORT
+          value: "8080"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loans-service-service
+spec:
+  selector:
+    app: loans-service
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
+
+
+# Prometheus
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: prometheus-deployment
+#   labels:
+#     app: prometheus
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: prometheus
+#   template:
+#     metadata:
+#       labels:
+#         app: prometheus
+#     spec:
+#       containers:
+#       - name: prometheus
+#         image: prom/prometheus
+#         ports:
+#         - containerPort: 9090
+#         resources:
+#           requests:
+#             memory: "128Mi"
+#             cpu: "100m"
+#           limits:
+#             memory: "256Mi"
+#             cpu: "200m"
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: prometheus-service
+# spec:
+#   selector:
+#     app: prometheus
+#   ports:
+#   - port: 9090
+#     targetPort: 9090
+#   type: LoadBalancer
+# ---
+# # Grafana
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: grafana-deployment
+#   labels:
+#     app: grafana
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: grafana
+#   template:
+#     metadata:
+#       labels:
+#         app: grafana
+#     spec:
+#       containers:
+#       - name: grafana
+#         image: grafana/grafana:latest
+#         ports:
+#         - containerPort: 3000
+#         resources:
+#           requests:
+#             memory: "128Mi"
+#             cpu: "100m"
+#           limits:
+#             memory: "256Mi"
+#             cpu: "200m"
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: grafana-service
+# spec:
+#   selector:
+#     app: grafana
+#   ports:
+#   - port: 3000
+#     targetPort: 3000
+#   type: LoadBalancer
+# ---
+# # MailHog
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: mailhog-deployment
+#   labels:
+#     app: mailhog
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: mailhog
+#   template:
+#     metadata:
+#       labels:
+#         app: mailhog
+#     spec:
+#       containers:
+#       - name: mailhog
+#         image: jcalonso/mailhog:latest
+#         ports:
+#         - containerPort: 1025
+#         - containerPort: 8025
+#         resources:
+#           requests:
+#             memory: "64Mi"
+#             cpu: "50m"
+#           limits:
+#             memory: "128Mi"
+#             cpu: "100m"
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: mailhog-service
+# spec:
+#   selector:
+#     app: mailhog
+#   ports:
+#   - port: 1025
+#     targetPort: 1025
+#     name: smtp
+#   - port: 8025
+#     targetPort: 8025
+#     name: web
+#   type: LoadBalancer

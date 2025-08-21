@@ -82,7 +82,7 @@ scrape_configs:
     - 'http://gateway-service:8090/actuator/health'
     - 'http://users-service:8080/actuator/health'
     - 'http://loans-service:8080/actuator/health'
-    - 'http://auth-service:8086/actuator/health'
+    - 'http://auth-service:8080/actuator/health'
     - 'http://eureka-server:8761/actuator/health'
   # This relabeling is the key part that makes the blackbox exporter work.
   relabel_configs:

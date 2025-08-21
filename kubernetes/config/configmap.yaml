@@ -1,0 +1,36 @@
+# Store non-sensitive configuration data
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  # Spring profiles
+  SPRING_PROFILES_ACTIVE: "docker"
+
+  # Eureka configuration
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server-service:8761/eureka/"
+  EUREKA_CLIENT_REGISTER_WITH_EUREKA: "false"
+  EUREKA_CLIENT_FETCH_REGISTRY: "false"
+
+  # Database configuration
+  SPRING_DATASOURCE_URL_USERS: "jdbc:postgresql://postgres-users-service:5432/loans-users"
+  SPRING_DATASOURCE_URL_LOANS: "jdbc:postgresql://postgres-loans-service:5432/loans-loans"
+  POSTGRES_DB_USERS: "loans-users"
+  POSTGRES_DB_LOANS: "loans-loans"
+
+  # Service ports
+  SERVER_PORT_GATEWAY: "8090"
+  SERVER_PORT_EUREKA: "8761"
+  SERVER_PORT_AUTH: "8086"
+  SERVER_PORT_USERS: "8080"
+  SERVER_PORT_LOANS: "8080"
+
+  # Application names
+  SPRING_APPLICATION_NAME_GATEWAY: "gateway"
+  SPRING_APPLICATION_NAME_EUREKA: "eureka-server"
+  SPRING_APPLICATION_NAME_AUTH: "auth"
+  SPRING_APPLICATION_NAME_USERS: "users"
+  SPRING_APPLICATION_NAME_LOANS: "loans"
+
+  EUREKA_INSTANCE_HOSTNAME_GATEWAY: "gateway-service"
+  EUREKA_INSTANCE_HOSTNAME_EUREKA: "eureka-server"
