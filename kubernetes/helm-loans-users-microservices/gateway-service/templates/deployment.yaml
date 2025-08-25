@@ -28,7 +28,7 @@ spec:
         - name: SERVER_PORT
           value: {{ .Values.env.serverPort | quote }}
         - name: SPRING_APPLICATION_NAME
-          value: {{ .Values.appName | quote }}
+          value: {{ .Values.env.springApplicationName | quote }}
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:

@@ -1,0 +1,8 @@
+# This file just ensures the docker profile is recognized
+
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+# No configuration values here - everything comes from environment variables

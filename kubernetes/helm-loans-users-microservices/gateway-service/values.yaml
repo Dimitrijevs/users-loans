@@ -26,6 +26,7 @@ secrets:
 # Environment variables that are NOT secrets
 env:
   springProfilesActive: "docker"
+  springApplicationName: "gateway"
   serverPort: 8090
   eurekaClientServiceUrlDefaultZone: "http://umbrella-eureka-server-service:8761/eureka/"
-  eurekaInstanceHostname: "gateway-service"
+  eurekaInstanceHostname: "umbrella-gateway-service"
