@@ -1,0 +1,42 @@
+auth-service:
+  autoscaling:
+    enabled: false
+  ingress:
+    enabled: false
+  serviceAccount:
+    create: true
+
+gateway-service:
+  autoscaling:
+    enabled: false
+  ingress:
+    enabled: false
+  serviceAccount:
+    create: true
+
+loans-service:
+  autoscaling:
+    enabled: false
+  ingress:
+    enabled: false
+  serviceAccount:
+    create: true
+
+users-service:
+  autoscaling:
+    enabled: false
+  ingress:
+    enabled: false
+  serviceAccount:
+    create: true
+
+eureka-server:
+  autoscaling:
+    enabled: false
+  ingress:
+    enabled: false
+  serviceAccount:
+    create: true
+
+shared-secrets:
+  enabled: true

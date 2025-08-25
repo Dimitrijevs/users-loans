@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "eureka-server.fullname" . }}-service
+  labels:
+    {{ include "eureka-server.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: {{ include "eureka-server.fullname" . }}
+  ports:
+  - port: {{ .Values.service.externalPort }}
+    targetPort: {{ .Values.service.internalPort }}
+    protocol: TCP
+    name: http
+  type: {{ .Values.service.type }}

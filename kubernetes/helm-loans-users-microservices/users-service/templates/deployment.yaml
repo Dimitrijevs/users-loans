@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "users-service.fullname" . }}-deployment
+  labels:
+    {{ include "users-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "users-service.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "users-service.fullname" . }}
+    spec:
+      containers:
+      - name: {{ include "users-service.fullname" . }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.internalPort }}
+        resources:
+          {{ toYaml .Values.resources | nindent 12 }}
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: {{ .Values.env.springProfilesActive | quote }}
+        - name: SPRING_DATASOURCE_URL
+          value: {{ .Values.env.springDatasourceUrl | quote }}
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.sharedSecretName }}
+              key: POSTGRES_USERNAME
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.sharedSecretName }}
+              key: POSTGRES_PASSWORD
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          value: {{ .Values.env.eurekaClientServiceUrlDefaultZone | quote }}
+        - name: EUREKA_INSTANCE_HOSTNAME
+          value: {{ .Values.env.eurekaInstanceHostname | quote }}
+        - name: SPRING_APPLICATION_NAME
+          value: {{ .Values.appName | quote }}
+        - name: SERVER_PORT
+          value: {{ .Values.env.serverPort | quote }}

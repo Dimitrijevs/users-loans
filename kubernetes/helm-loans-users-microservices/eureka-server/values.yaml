@@ -1,0 +1,29 @@
+replicaCount: 1
+
+image:
+  repository: gleb8/eureka-server
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  internalPort: 8761
+  externalPort: 8761
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+appName: eureka-server
+
+env:
+  springProfilesActive: "docker"
+  serverPort: 8761
+  eurekaClientRegisterWithEureka: "false"
+  eurekaClientFetchRegistry: "false"
+  eurekaClientServiceUrlDefaultZone: "http://eureka-server-service:8761/eureka/"
+  eurekaInstanceHostname: "eureka-server"

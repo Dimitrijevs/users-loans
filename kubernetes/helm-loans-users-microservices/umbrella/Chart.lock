@@ -1,0 +1,21 @@
+dependencies:
+- name: auth-service
+  repository: file://../auth-service
+  version: 0.1.0
+- name: gateway-service
+  repository: file://../gateway-service
+  version: 0.1.0
+- name: loans-service
+  repository: file://../loans-service
+  version: 0.1.0
+- name: users-service
+  repository: file://../users-service
+  version: 0.1.0
+- name: eureka-server
+  repository: file://../eureka-server
+  version: 0.1.0
+- name: shared-secrets
+  repository: file://../shared-secrets
+  version: 0.1.0
+digest: sha256:74f88219a071c7b447d536191a0e2d894106ef224444e11543e6f63964981919
+generated: "2025-08-25T15:02:47.452381+03:00"

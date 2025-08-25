@@ -1,0 +1,22 @@
+apiVersion: v2
+name: loans-users-microservices
+version: 0.1.0
+dependencies:
+- name: auth-service
+  version: 0.1.0
+  repository: "file://../auth-service"
+- name: gateway-service
+  version: 0.1.0
+  repository: "file://../gateway-service"
+- name: loans-service
+  version: 0.1.0
+  repository: "file://../loans-service"
+- name: users-service
+  version: 0.1.0
+  repository: "file://../users-service"
+- name: eureka-server
+  version: 0.1.0
+  repository: "file://../eureka-server"
+- name: shared-secrets
+  version: 0.1.0
+  repository: "file://../shared-secrets"

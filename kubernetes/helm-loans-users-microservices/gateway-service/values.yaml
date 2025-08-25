@@ -1,0 +1,31 @@
+replicaCount: 1
+
+image:
+  repository: gleb8/gateway-service
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  internalPort: 8090
+  externalPort: 8090
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+# Reference to your shared secret
+secrets:
+  # This should match the name in your secrets.yaml
+  sharedSecretName: app-secrets
+
+# Environment variables that are NOT secrets
+env:
+  springProfilesActive: "docker"
+  serverPort: 8090
+  eurekaClientServiceUrlDefaultZone: "http://eureka-server-service:8761/eureka/"
+  eurekaInstanceHostname: "gateway-service"

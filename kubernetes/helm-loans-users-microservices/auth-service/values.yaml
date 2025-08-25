@@ -1,0 +1,32 @@
+# Default values for auth-service
+replicaCount: 1
+
+image:
+  repository: gleb8/auth-service
+  tag: "1.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  internalPort: 8080
+  externalPort: 8086
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+# Reference to your shared secret
+secrets:
+  # This should match the name in your secrets.yaml
+  sharedSecretName: app-secrets
+
+# Environment variables that are NOT secrets
+env:
+  serverPort: "8080"
+  springApplicationName: "auth"
+  eurekaUrl: "http://eureka-server-service:8761/eureka/"
+  instanceHostname: "auth-service"

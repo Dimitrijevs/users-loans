@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gateway-service.fullname" . }}-deployment
+  labels:
+    {{ include "gateway-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "gateway-service.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "gateway-service.fullname" . }}
+    spec:
+      containers:
+      - name: {{ include "gateway-service.fullname" . }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.internalPort }}
+        resources:
+          {{ toYaml .Values.resources | nindent 12 }}
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: {{ .Values.env.springProfilesActive | quote }}
+        - name: SERVER_PORT
+          value: {{ .Values.env.serverPort | quote }}
+        - name: SPRING_APPLICATION_NAME
+          value: {{ .Values.appName | quote }}
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.sharedSecretName }}
+              key: JWT_SECRET
+        - name: JWT_EXPIRATION
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.sharedSecretName }}
+              key: JWT_EXPIRATION
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          value: {{ .Values.env.eurekaClientServiceUrlDefaultZone | quote }}
+        - name: EUREKA_INSTANCE_HOSTNAME
+          value: {{ .Values.env.eurekaInstanceHostname | quote }}
