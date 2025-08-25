@@ -25,5 +25,5 @@ env:
   serverPort: 8761
   eurekaClientRegisterWithEureka: "false"
   eurekaClientFetchRegistry: "false"
-  eurekaClientServiceUrlDefaultZone: "http://eureka-server-service:8761/eureka/"
+  eurekaClientServiceUrlDefaultZone: "http://umbrella-eureka-server-service:8761/eureka/"
   eurekaInstanceHostname: "eureka-server"

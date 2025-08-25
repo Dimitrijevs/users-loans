@@ -28,7 +28,7 @@ spec:
             - name: SPRING_APPLICATION_NAME
               value: {{ .Values.env.springApplicationName | quote }}
             - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-              value: {{ .Values.env.eurekaUrl | quote }}
+              value: {{ .Values.env.eurekaClientServiceUrlDefaultZone | quote }}
             - name: EUREKA_INSTANCE_HOSTNAME
               value: {{ .Values.env.instanceHostname | quote }}
             - name: JWT_SECRET

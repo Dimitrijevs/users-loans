@@ -27,5 +27,5 @@ secrets:
 env:
   springProfilesActive: "docker"
   serverPort: 8090
-  eurekaClientServiceUrlDefaultZone: "http://eureka-server-service:8761/eureka/"
+  eurekaClientServiceUrlDefaultZone: "http://umbrella-eureka-server-service:8761/eureka/"
   eurekaInstanceHostname: "gateway-service"

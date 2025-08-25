@@ -28,5 +28,5 @@ secrets:
 env:
   serverPort: "8080"
   springApplicationName: "auth"
-  eurekaUrl: "http://eureka-server-service:8761/eureka/"
+  eurekaClientServiceUrlDefaultZone: "http://umbrella-eureka-server-service:8761/eureka/"
   instanceHostname: "auth-service"
