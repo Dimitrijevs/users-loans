@@ -5,11 +5,13 @@ metadata:
   labels:
     {{ include "users-service.labels" . | nindent 4 }}
 spec:
+  type: {{ .Values.service.type }}
   selector:
     app: {{ include "users-service.fullname" . }}
   ports:
-  - port: {{ .Values.service.externalPort }}
-    targetPort: {{ .Values.service.internalPort }}
-    protocol: TCP
-    name: http
-  type: {{ .Values.service.type }}
+    - name: internal
+      port: {{ .Values.service.internalPort }}
+      targetPort: {{ .Values.service.internalPort }}
+    - name: external
+      port: {{ .Values.service.externalPort }}
+      targetPort: {{ .Values.service.internalPort }}

@@ -25,8 +25,8 @@ appVersion: "1.2.0"
 
 dependencies:
 - name: eureka-server
-  version: 1.2.0
+  version: 0.1.0
   repository: "file://../eureka-server"
 - name: gateway-service
-  version: 1.2.0
+  version: 0.1.0
   repository: "file://../gateway-service"

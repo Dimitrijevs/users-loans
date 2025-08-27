@@ -6,9 +6,9 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type: ClusterIP
+  type: LoadBalancer
   internalPort: 8080
-  externalPort: 8080
+  externalPort: 8084
 
 resources:
   limits:
@@ -29,6 +29,20 @@ secrets:
 env:
   springProfilesActive: "docker"
   serverPort: 8080
-  springDatasourceUrl: "jdbc:postgresql://postgres-users-service:5432/loans-users"
+  springDatasourceUrl: "jdbc:postgresql://umbrella-postgres-users:5432/loans-users"
   eurekaClientServiceUrlDefaultZone: "http://umbrella-eureka-server-service:8761/eureka/"
-  eurekaInstanceHostname: "umbrella-users-service"
+  eurekaInstanceHostname: "umbrella-users-service-service"
+
+logging:
+  level:
+    root: "INFO"
+    eureka: "DEBUG"
+    web: "DEBUG"
+    hibernate: "INFO"
+    hibernateSQL: "DEBUG"
+    gateway: "TRACE"
+    application: "DEBUG"
+
+jpa:
+  showSQL: true
+  formatSQL: true
