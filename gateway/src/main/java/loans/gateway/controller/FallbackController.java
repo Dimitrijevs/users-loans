@@ -13,6 +13,6 @@ public class FallbackController {
     @RequestMapping("/contact-support")
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     public Mono<String> contatSupport() {
-        return Mono.just("An error occured. Please try after some time ro contact support. Thank you!");
+        return Mono.just("An error occurred, please try after some time or contact support. Thank you.");
     }
 }
