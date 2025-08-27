@@ -29,6 +29,6 @@ secrets:
 env:
   springProfilesActive: "docker"
   serverPort: 8080
-  springDatasourceUrl: "jdbc:postgresql://postgres-loans-service:5432/loans-loans"
+  springDatasourceUrl: "jdbc:postgresql://umbrella-postgres-loans:5432/loans-loans"
   eurekaClientServiceUrlDefaultZone: "http://umbrella-eureka-server-service:8761/eureka/"
-  eurekaInstanceHostname: "umbrella-loans-service"
+  eurekaInstanceHostname: "umbrella-loans-service-service"

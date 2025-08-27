@@ -14,11 +14,14 @@ dependencies:
 - name: postgres-users
   repository: file://../postgres-users
   version: 0.1.0
+- name: postgres-loans
+  repository: file://../postgres-loans
+  version: 0.1.0
 - name: eureka-server
   repository: file://../eureka-server
   version: 0.1.0
 - name: shared-secrets
   repository: file://../shared-secrets
   version: 0.1.0
-digest: sha256:119d2dc8a53e18a316c83892152a4fffe391f1bea20da061f0bd56b445f2faae
-generated: "2025-08-26T10:59:39.123692+03:00"
+digest: sha256:8d7e609584635d97392a102f3f131f299afb62496c46f0ce6f1aeadd87a53843
+generated: "2025-08-27T19:47:46.299876+03:00"
