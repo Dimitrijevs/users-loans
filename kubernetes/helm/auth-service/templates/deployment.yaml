@@ -41,3 +41,10 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secrets.sharedSecretName }}
                   key: JWT_EXPIRATION
+
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: {{ .Values.env.managementEndpointsInclude | default "*" | quote }}
+            - name: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+              value: {{ .Values.env.healthShowDetails | default "always" | quote }}
+            - name: MANAGEMENT_METRICS_TAGS_APPLICATION
+              value: {{ .Values.env.metricsApplicationTag | default "auth" | quote }}

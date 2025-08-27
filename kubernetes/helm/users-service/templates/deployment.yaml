@@ -65,3 +65,10 @@ spec:
           value: {{ .Values.jpa.showSQL | default "true" | quote }}
         - name: SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL
           value: {{ .Values.jpa.formatSQL | default "true" | quote }}
+
+        - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+          value: {{ .Values.env.managementEndpointsInclude | default "*" | quote }}
+        - name: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+          value: {{ .Values.env.healthShowDetails | default "always" | quote }}
+        - name: MANAGEMENT_METRICS_TAGS_APPLICATION
+          value: {{ .Values.env.metricsApplicationTag | default "users" | quote }}

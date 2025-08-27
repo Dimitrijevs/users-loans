@@ -27,3 +27,7 @@ env:
   eurekaClientFetchRegistry: "false"
   eurekaClientServiceUrlDefaultZone: "http://umbrella-eureka-server-service:8761/eureka/"
   eurekaInstanceHostname: "umbrella-eureka-server"
+
+  managementEndpointsInclude: "*"
+  healthShowDetails: "always"
+  metricsApplicationTag: "eureka-server"

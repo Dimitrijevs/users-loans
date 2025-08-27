@@ -32,3 +32,7 @@ env:
   springDatasourceUrl: "jdbc:postgresql://umbrella-postgres-loans:5432/loans-loans"
   eurekaClientServiceUrlDefaultZone: "http://umbrella-eureka-server-service:8761/eureka/"
   eurekaInstanceHostname: "umbrella-loans-service-service"
+
+  managementEndpointsInclude: "*"
+  healthShowDetails: "always"
+  metricsApplicationTag: "loans"

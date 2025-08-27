@@ -31,6 +31,10 @@ env:
   eurekaClientServiceUrlDefaultZone: "http://umbrella-eureka-server-service:8761/eureka/"
   eurekaInstanceHostname: "umbrella-gateway-service-service"
 
+  managementEndpointsInclude: "*"
+  healthShowDetails: "always"
+  metricsApplicationTag: "gateway"
+
 logging:
   level:
     root: "INFO"

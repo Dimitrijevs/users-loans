@@ -30,3 +30,7 @@ env:
   serverPort: 8080
   eurekaClientServiceUrlDefaultZone: "http://umbrella-eureka-server-service:8761/eureka/"
   instanceHostname: "umbrella-auth-service"
+
+  managementEndpointsInclude: "*"
+  healthShowDetails: "always"
+  metricsApplicationTag: "auth"
